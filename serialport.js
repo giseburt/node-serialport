@@ -81,7 +81,7 @@ function SerialPort (path, options, openImmediately) {
     throw new Error('Invalid "databits": ' + options.dataBits);
   }
  
-  options.stopbits = options.stopBits || options.stopbits || _options.stopbits;
+  options.stopBits = options.stopBits || options.stopbits || _options.stopbits;
   if (STOPBITS.indexOf(options.stopBits) == -1) {
     throw new Error('Invalid "stopbits": ' + options.stopbits);
   }
