@@ -266,15 +266,8 @@ void EIO_Write(uv_work_t* req) {
 void EIO_Close(uv_work_t* req) {
   CloseBaton* data = static_cast<CloseBaton*>(req->data);
 
-  printf(">>>> close fd %d\n", data->fd);
-
-  // fcntl(data->fd, F_SETFL, FNONBLOCK);
-
-  ssize_t r;
-
+  int r;
   r = close(data->fd);
-
-  printf(">>>> closed fd %d (err: %d)\n", data->fd, errno);
 
   if (r && r != EBADF)
     snprintf(data->errorString, sizeof(data->errorString), "Unable to close fd %d, errno: %d", data->fd, errno);

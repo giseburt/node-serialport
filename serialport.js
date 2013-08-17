@@ -133,19 +133,17 @@ function SerialPort (path, options, openImmediately) {
   };
 
   options.dataReadyCallback = function () {
-    console.log("DATA READY>>>");
     self.readStream._read(4024);
   };
 
   options.errorCallback = function (err) {
-    console.log("err:", JSON.stringify(err));
     if (err.code && err.code == 'EAGAIN') {
-      console.log("RESUMING>>>");
       if (self.fd > 0)
         self.serialPoller.start();
       return;
     }
 
+    // console.log("err:", JSON.stringify(err));
     self.emit('error', err);
   };
   options.disconnectedCallback = function () {
@@ -225,8 +223,6 @@ SerialPort.prototype.write = function (buffer, callback) {
 };
 
 SerialPort.prototype.close = function (callback) {
-  console.log("CLOSING.js: %d", this.fd);
-
   var self = this;
   
   var fd = this.fd;
@@ -253,7 +249,6 @@ SerialPort.prototype.close = function (callback) {
     self.serialPoller.close();
 
     SerialPortBinding.close(fd, function (err) {
-      console.log("STOP");
       if (err) {
         self.emit('error', err);
       }

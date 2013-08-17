@@ -5,7 +5,7 @@ using namespace v8;
 
 SerialportPoller::SerialportPoller() :  ObjectWrap() {};
 SerialportPoller::~SerialportPoller() {
-  printf("~SerialportPoller\n");
+  // printf("~SerialportPoller\n");
   callback_.Dispose();
 };
 
