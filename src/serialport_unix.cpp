@@ -1,5 +1,6 @@
 #ifndef WIN32
 #include "serialport.h"
+#include "serialport_poller.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -98,6 +99,7 @@ int ToDataBitsConstant(int dataBits) {
 }
 
 
+
 void EIO_Open(uv_work_t* req) {
   OpenBaton* data = static_cast<OpenBaton*>(req->data);
   int baudRate = data->baudRate;
@@ -124,18 +126,20 @@ void EIO_Open(uv_work_t* req) {
     snprintf(data->errorString, sizeof(data->errorString), "Cannot open %s", data->path);
     return;
   }
+  
+
+  // struct sigaction saio;
+  // saio.sa_handler = sigio_handler;
+  // sigemptyset(&saio.sa_mask);
+  // saio.sa_flags = 0;
+  // sigaction(SIGIO, &saio, NULL);
+
+  // //all process to receive SIGIO
+  // fcntl(fd, F_SETOWN, getpid());
+  // int flflags = fcntl(fd, F_GETFL);
+  // fcntl(fd, F_SETFL, flflags | FNONBLOCK);
 
   struct termios options;
-  struct sigaction saio;
-  saio.sa_handler = SIG_IGN;
-  sigemptyset(&saio.sa_mask);
-  saio.sa_flags = 0;
-  sigaction(SIGIO, &saio, NULL);
-
-  //all process to receive SIGIO
-  fcntl(fd, F_SETOWN, getpid());
-  fcntl(fd, F_SETFL, FASYNC);
-
   // Set baud and other configuration.
   tcgetattr(fd, &options);
 // Removing check for valid BaudRates due to ticket: #140
@@ -146,18 +150,14 @@ void EIO_Open(uv_work_t* req) {
 // Removing check for valid BaudRates due to ticket: #140
 // #endif 
 
-
   /*
     IGNPAR  : ignore bytes with parity errors
     ICRNL   : map CR to NL (otherwise a CR input on the other computer
               will not terminate input)
     otherwise make device raw (no other input processing)
   */
-  options.c_iflag = IGNPAR | ICRNL;
-
-
-
-
+  // Pulling this for now. It should be an option, however. -Giseburt
+  // options.c_iflag = IGNPAR | ICRNL;
 
   // Specify data bits
   options.c_cflag &= ~CSIZE;
@@ -266,7 +266,18 @@ void EIO_Write(uv_work_t* req) {
 void EIO_Close(uv_work_t* req) {
   CloseBaton* data = static_cast<CloseBaton*>(req->data);
 
-  close(data->fd);
+  printf(">>>> close fd %d\n", data->fd);
+
+  // fcntl(data->fd, F_SETFL, FNONBLOCK);
+
+  ssize_t r;
+
+  r = close(data->fd);
+
+  printf(">>>> closed fd %d (err: %d)\n", data->fd, errno);
+
+  if (r && r != EBADF)
+    snprintf(data->errorString, sizeof(data->errorString), "Unable to close fd %d, errno: %d", data->fd, errno);
 }
 
 #ifdef __APPLE__
