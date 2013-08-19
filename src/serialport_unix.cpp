@@ -161,7 +161,7 @@ void EIO_Open(uv_work_t* req) {
     if (ioctl(fd, TIOCGSERIAL, &serinfo) != -1) {
       serinfo.flags &= ~ASYNC_SPD_MASK;
       serinfo.flags |= ASYNC_SPD_CUST;
-      serinfo.custom_divisor = (serinfo.baud_base + (data->baudRate / 2)) / rate;
+      serinfo.custom_divisor = (serinfo.baud_base + (data->baudRate / 2)) / data->baudRate;
       if (serinfo.custom_divisor < 1) 
         serinfo.custom_divisor = 1;
 
