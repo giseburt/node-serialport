@@ -23,7 +23,7 @@ void _serialportReadable(uv_poll_t *req, int status, int events) {
 }
 
 void SerialportPoller::callCallback() {
-  uv_work_t* req = new uv_work_t;
+  // uv_work_t* req = new uv_work_t;
 
   // Call the callback to go read more data...
   v8::Function::Cast(*callback_)->Call(v8::Context::GetCurrent()->Global(), 0, NULL);//2, argv
