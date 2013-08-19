@@ -25,6 +25,7 @@ Boolean lockInitialised = FALSE;
 #endif
 
 #if defined(__linux__)
+#include <sys/ioctl.h>
 #include <linux/serial.h>
 #endif
 
