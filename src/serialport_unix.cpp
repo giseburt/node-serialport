@@ -26,7 +26,7 @@ Boolean lockInitialised = FALSE;
 
 #if defined(__linux__)
 #include <linux/serial.h>
-#end
+#endif
 
 int ToBaudConstant(int baudRate);
 int ToDataBitsConstant(int dataBits);
@@ -163,15 +163,14 @@ void EIO_Open(uv_work_t* req) {
       serinfo.custom_divisor = (serinfo.baud_base + (rate / 2)) / rate;
       if (serinfo.custom_divisor < 1) 
         serinfo.custom_divisor = 1;
-      if (ioctl(fd, TIOCSSERIAL, &serinfo) < 0)
-        return -1;
-      if (ioctl(fd, TIOCGSERIAL, &serinfo) < 0)
-        return -1;
-      if (serinfo.custom_divisor * rate != serinfo.baud_base) {
-        warnx("actual baudrate is %d / %d = %f",
-          serinfo.baud_base, serinfo.custom_divisor,
-          (float)serinfo.baud_base / serinfo.custom_divisor);
-      }
+
+      ioctl(fd, TIOCSSERIAL, &serinfo);
+      ioctl(fd, TIOCGSERIAL, &serinfo);
+      // if (serinfo.custom_divisor * rate != serinfo.baud_base) {
+      //   warnx("actual baudrate is %d / %d = %f",
+      //     serinfo.baud_base, serinfo.custom_divisor,
+      //     (float)serinfo.baud_base / serinfo.custom_divisor);
+      // }
     }
 
     // Now we use "B38400" to trigger the special baud rate.
@@ -289,7 +288,7 @@ void EIO_Open(uv_work_t* req) {
 
   // On OS X, starting in Tiger, we can set a custom baud rate, as follows:
 #if defined(MAC_OS_X_VERSION_10_4) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_4)
-  if (baud == -1) {
+  if (baudRate == -1) {
     speed_t speed = data->baudRate;
     if (ioctl(fd,  IOSSIOSPEED, &speed) == -1) {
       snprintf(data->errorString, sizeof(data->errorString), "Error %s calling ioctl( ..., IOSSIOSPEED, %ld )", strerror(errno), speed );
