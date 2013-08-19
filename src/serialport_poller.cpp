@@ -1,3 +1,7 @@
+// Copyright (C) 2013 Robert Giseburt <giseburt@gmail.com>
+// serialport_poller.cpp Written as a part of https://github.com/voodootikigod/node-serialport
+// License to use this is the same as that of node-serialport.
+
 #include <node.h>
 #include "serialport_poller.h"
 
